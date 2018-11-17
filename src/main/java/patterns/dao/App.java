@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 public class App {
 
-    private static final String DB_URL = "jdbc:h2:~/dao";
+    private static final String DB_URL = "jdbc:h2:~/workspace/dao";
 
     public static void main(String[] args) throws Exception {
 
