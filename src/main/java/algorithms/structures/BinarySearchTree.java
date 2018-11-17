@@ -198,10 +198,108 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
         }
     }
 
+    /**
+     * Get greatest node in sub-tree rooted at startingNode. The search doesn't
+     * include startingNode in it's results.
+     *
+     * @param startingNode  Root of tree to search.
+     * @return Node<T> which represents the greatest node in the startingNode
+     *          sub-tree or NULL if startingNode has no greater children.
+     */
+    protected Node<T> getGreatest(Node<T> startingNode) {
+        if (startingNode == null) {
+            return null;
+        }
+
+        Node<T> greater = startingNode.greater;
+        while (greater != null && greater.id != null) {
+            Node<T> node = greater.greater;
+            if (node != null && node.id != null) {
+                greater = node;
+            } else {
+                break;
+            }
+
+            return greater;
+        }
+
+        return greater;
+    }
+
+    /**
+     * Get least node in sub-tree rooted at startingNode. The search does not
+     * include startingNode in it's results.
+     *
+     * @param startingNode
+     *            Root of tree to search.
+     * @return Node<T> which represents the least node in the startingNode
+     *         sub-tree or NULL if startingNode has no lesser children.
+     */
+    protected Node<T> getLeast(Node<T> startingNode) {
+        if (startingNode == null) {
+            return null;
+        }
+
+        Node<T> lesser = startingNode.lesser;
+        while (lesser != null && lesser.id != null) {
+            Node<T> node =lesser.lesser;
+            if (node != null && node.id != null) {
+                lesser = node;
+            } else {
+                break;
+            }
+        }
+        return lesser;
+    }
+
     @Override
     public T remove(T value) {
-        return null;
+        Node<T> nodeToRemove = this.removeValue(value);
+        return ((nodeToRemove != null) ? nodeToRemove.id : null);
     }
+
+    /**
+     * Remove first occurrence of value in the tree.
+     *
+     * @param value
+     *            T to remove from the tree.
+     * @return Node<T> which was removed from the tree.
+     */
+    protected Node<T> removeValue(T value) {
+        Node<T> nodeToRemoved = this.getNode(value);
+        if (nodeToRemoved != null) {
+            nodeToRemoved = removeNode(nodeToRemoved);
+        }
+        return nodeToRemoved;
+    }
+
+    protected Node<T> removeNode(Node<T> nodeToRemoved) {
+        if (nodeToRemoved != null) {
+            Node<T> replacementNode = this.getReplacementNode(nodeToRemoved);
+            replacementNodeWithNode(nodeToRemoved, replacementNode);
+        }
+
+        return nodeToRemoved;
+    }
+
+    /**
+     * Get the proper replacement node according to the binary search tree
+     * algorithm from the tree.
+     *
+     * @param nodeToRemoved
+     *            Node<T> to find a replacement for.
+     * @return Node<T> which can be used to replace nodeToRemoved. nodeToRemoved
+     *         should NOT be NULL.
+     */
+    protected Node<T> getReplacementNode(Node<T> nodeToRemoved) {
+        Node<T> replacement = null;
+
+    }
+
+    private void replacementNodeWithNode(Node<T> nodeToRemoved, Node<T> replacementNode) {
+    }
+
+
 
     @Override
     public void clear() {
