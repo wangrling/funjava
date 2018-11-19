@@ -1,8 +1,12 @@
 package algorithms.structures;
 
+import algorithms.structures.common.TreeTest;
+import algorithms.structures.common.Utils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BinarySearchTreeTests {
 
@@ -22,11 +26,16 @@ public class BinarySearchTreeTests {
 
     @Test
     public void testBST() {
-        String baseName = "BST";
+        Utils.TestData data = Utils.generateTestData(1000);
+
+        String bstName = "BST";
 
         BinarySearchTree<Integer> bst = new BinarySearchTree<>();
+
         Collection<Integer> bstCollection = bst.toCollection();
 
+        assertTrue(TreeTest.testTree(bst, Integer.class, bstName,
+                data.unsorted, data.invalid));
 
     }
 }
