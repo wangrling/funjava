@@ -2,10 +2,12 @@
 
 Basic
 1. Getting Started   => getstarted
+
 开始：HelloWorldApp
 ------------------
 
 2. Learning the Java Language => language
+
 对象：Bicycle
 
 继承：MountainBike
@@ -45,10 +47,7 @@ Lambda: RosterTest (重点)
 
 注解：Generation3List
 Schedule
-
-
-
-
+--------
 
 3. Essential Java Classes   => classes
 4. Collections  => collections

@@ -322,6 +322,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
         return replacement;
     }
 
+
     /**
      * Replace nodeToRemoved with replacementNode in the tree.
      * @param nodeToRemoved
@@ -329,13 +330,63 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
      * @param replacementNode
      *      Node<T> to replace nodeToRemoved in the tree. replacementNode can be NULL.
      */
-    // 使用后者代替前者。
+    // 找到greater的最小值，或者找到lesser的最大值代替想要刪除的值。
     private void replacementNodeWithNode(Node<T> nodeToRemoved, Node<T> replacementNode) {
+        if (replacementNode != null) {
+            // Save for later
+            Node<T> replacementNodeLesser = replacementNode.lesser;
+            Node<T> replacementNodeGreater = replacementNode.greater;
 
+            // Replace replacementNode's branches with nodeToRemove's branches.
+            Node<T> nodeToRemoveLesser = nodeToRemoved.lesser;
+            // 將需要被代替的左右節點指向代替它的節點。
+            if (nodeToRemoveLesser != null && nodeToRemoveLesser != replacementNode) {
+                replacementNode.lesser = nodeToRemoveLesser;
+                nodeToRemoveLesser.parent = replacementNode;
+            }
+            Node<T> nodeToRemoveGreater = nodeToRemoved.greater;
+            if (nodeToRemoveGreater != null && nodeToRemoveGreater != replacementNode) {
+                replacementNode.greater = nodeToRemoveGreater;
+                nodeToRemoveGreater.parent = replacementNode;
+            }
 
+            // Remove link from replacementNode' parent to replacement.
+            Node<T> replacementParent = replacementNode.parent;
+            if (replacementParent != null && replacementParent != nodeToRemoved) {
+                Node<T> replacementParentLesser = replacementParent.lesser;
+                Node<T> replacementParentGreater = replacementParent.greater;
+                if (replacementParentLesser != null && replacementParentLesser == replacementNode) {
+                    replacementParent.lesser = replacementNodeGreater;
+                    // 通常爲空
+                    if (replacementNodeGreater != null)
+                        replacementNodeGreater.parent = replacementParent;
+                } else if (replacementParentGreater != null && replacementParentGreater == replacementNode) {
+                    replacementParent.greater = replacementNodeLesser;
+                    // 通常爲空
+                    if (replacementNodeLesser != null)
+                        replacementNodeLesser.parent = replacementParent;
+                }
+            }
 
-
-
+            // Update the link in the tree from the nodeToRemoved to the replacementNode.
+            Node<T> parent = nodeToRemoved.parent;
+            if (parent == null) {
+                // Replacing the root node
+                root = replacementNode;
+                if (root != null) {
+                    root.parent = null;
+                }
+            } else if (parent.lesser != null && (parent.lesser.id.compareTo(nodeToRemoved.id) == 0)) {
+                parent.lesser = replacementNode;
+                if (replacementNode != null)
+                    replacementNode.parent = parent;
+            } else if (parent.greater != null && (parent.greater.id.compareTo(nodeToRemoved.id) == 0)) {
+                parent.greater = replacementNode;
+                if (replacementNode != null)
+                    replacementNode.parent = parent;
+            }
+            size--;
+        }
     }
 
 
@@ -557,6 +608,86 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
         return (new JavaCompatibleBinarySearchTree<T>(this));
     }
 
+    protected static class Node<T extends Comparable<T>> {
+        protected T id = null;
+        protected Node<T> parent = null;
+        protected Node<T> lesser = null;
+        protected Node<T> greater = null;
+
+        // 可以把id想成一个数字。
+
+        /**
+         * Node constructor
+         * @param parent Parent link in tree. Parent can be NULL.
+         * @param id    T representing the node in the tree.
+         */
+        protected Node(Node<T> parent, T id) {
+            this.parent = parent;
+            this.id = id;
+        }
+
+        @Override
+        public String toString() {
+            return "id=" + id + " parent=" + ((parent != null) ? parent.id : "NULL") + " lesser="
+                    + ((lesser != null) ? lesser.id : "NULL") + " greater=" + ((greater != null) ? greater.id : "NULL");
+        }
+    }
+
+    // T是Comparable类型。
+    protected static interface INodeCreator<T extends Comparable<T>> {
+        /**
+         * Create a new Node with the following parameters.
+         *
+         * @param parent    of this node.
+         * @param id    of this node.
+         * @return  new Node;
+         */
+        public Node<T> createNewNode(Node<T> parent, T id);
+    }
+
+    protected static class TreePrinter {
+        public static <T extends Comparable<T>> String getString(BinarySearchTree<T> tree) {
+            if (tree.root == null) {
+                return "Tree has no nodes.";
+            }
+
+            return getString(tree.root, "", true);
+        }
+
+        private static <T extends Comparable<T>> String getString(Node<T> node,
+                                                                  String prefix, boolean isTail) {
+            StringBuilder builder = new StringBuilder();
+
+            if (node.parent != null) {
+                String side = "left";
+                if (node.equals(node.parent.greater)) {
+                    side = "right";
+                }
+                builder.append(prefix + (isTail ? "└── " : "├── ") + "(" + side + ")" + node.id + "\n");
+            } else {
+                builder.append((isTail ? "└── " : "├── ") + node.id + "\n");
+            }
+
+            List<Node<T>> children = null;
+            if (node.lesser != null) {
+                children.add(node.lesser);
+            }
+            if (node.greater != null) {
+                children.add(node.greater);
+            }
+
+            if (children != null) {
+                for (int i = 0; i < children.size() - 1; i++) {
+                    builder.append(getString(children.get(i), prefix + (isTail ? "    " : "│   "), false));
+                }
+                if (children.size() >= 1) {
+                    builder.append(getString(children.get(children.size() - 1), prefix + (isTail ? "    " : "│   "), true));
+                }
+            }
+            return builder.toString();
+        }
+    }
+
     private static class JavaCompatibleBinarySearchTree<T extends Comparable<T>> extends
             java.util.AbstractCollection<T> {
 
@@ -593,57 +724,51 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
             return tree.size;
         }
 
-        private static class BinarySearchTreeIterator<C extends Comparable<T>> implements
+        private static class BinarySearchTreeIterator<C extends Comparable<C>> implements
                 java.util.Iterator<C> {
 
+            private BinarySearchTree<C> tree = null;
+            private BinarySearchTree.Node<C> last = null;
+            private Deque<BinarySearchTree.Node<C>> toVisit = new ArrayDeque<>();
 
+            protected BinarySearchTreeIterator(BinarySearchTree<C> tree) {
+                this.tree = tree;
+                if (tree.root != null)
+                    toVisit.add(tree.root);
+            }
 
             @Override
             public boolean hasNext() {
+                if (toVisit.size() > 0)
+                    return true;
+
                 return false;
             }
 
             @Override
             public C next() {
+                while (toVisit.size() > 0) {
+                    // Go thru the current node.
+                    BinarySearchTree.Node<C> n = toVisit.pop();
+
+                    // Add non-null children
+                    if (n.lesser != null)
+                        toVisit.add(n.lesser);
+
+                    if (n.greater != null)
+                        toVisit.add(n.greater);
+
+                    // Update last node (using in remove method)
+                    last = n;
+                    return n.id;
+                }
                 return null;
             }
+
+            @Override
+            public void remove() {
+                tree.removeNode(last);
+            }
         }
-    }
-
-    protected static class Node<T extends Comparable<T>> {
-        protected T id = null;
-        protected Node<T> parent = null;
-        protected Node<T> lesser = null;
-        protected Node<T> greater = null;
-
-        // 可以把id想成一个数字。
-
-        /**
-         * Node constructor
-         * @param parent Parent link in tree. Parent can be NULL.
-         * @param id    T representing the node in the tree.
-         */
-        protected Node(Node<T> parent, T id) {
-            this.parent = parent;
-            this.id = id;
-        }
-
-        @Override
-        public String toString() {
-            return "id=" + id + " parent=" + ((parent != null) ? parent.id : "NULL") + " lesser="
-                    + ((lesser != null) ? lesser.id : "NULL") + " greater=" + ((greater != null) ? greater.id : "NULL");
-        }
-    }
-
-    // T是Comparable类型。
-    protected static interface INodeCreator<T extends Comparable<T>> {
-        /**
-         * Create a new Node with the following parameters.
-         *
-         * @param parent    of this node.
-         * @param id    of this node.
-         * @return  new Node;
-         */
-        public Node<T> createNewNode(Node<T> parent, T id);
     }
 }

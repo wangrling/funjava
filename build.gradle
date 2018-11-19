@@ -22,9 +22,9 @@ dependencies {
     compile 'com.google.guava:guava:23.0'
 
     // Use JUnit test framework
-    testCompile('org.junit.jupiter:junit-jupiter-api:5.3.1')
-    testCompile('org.junit.jupiter:junit-jupiter-params:5.3.1')
-    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.3.1')
+    testCompile('org.junit5.jupiter:junit5-jupiter-api:5.3.1')
+    testCompile('org.junit5.jupiter:junit5-jupiter-params:5.3.1')
+    testRuntime('org.junit5.jupiter:junit5-jupiter-engine:5.3.1')
 
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation("com.squareup.okhttp3:okhttp:3.12.0")
