@@ -16,8 +16,8 @@ package algorithms.structures;
 
 import algorithms.structures.interfaces.ITree;
 
-import java.util.Collection;
-import java.util.Random;
+import java.lang.reflect.Array;
+import java.util.*;
 
 
 @SuppressWarnings("unchecked")
@@ -31,7 +31,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
     protected int size = 0;
     protected INodeCreator<T> creator = null;
 
-    //　三种查询方式。
+    //　三种排序方式，在getDFS函数里使用。
     public enum DepthFirstSearchOrder {
         inOrder, preOrder, postOrder
     }
@@ -293,32 +293,321 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
      */
     protected Node<T> getReplacementNode(Node<T> nodeToRemoved) {
         Node<T> replacement = null;
+        if (nodeToRemoved.greater != null && nodeToRemoved.lesser != null) {
+            // Two children.
+            // Add som randomness to deletions, so we don't always use the
+            // greatest/least on deletion.
+            // 奇数
+            if (modifications % 2 != 0) {
+                replacement = this.getGreatest(nodeToRemoved.lesser);
+                if (replacement == null) {
+                    replacement = nodeToRemoved.lesser;
+                }
+            } else {
+                replacement = this.getLeast(nodeToRemoved.greater);
+                if (replacement == null) {
+                    replacement = nodeToRemoved.greater;
+                }
+            }
+            // 修改的次数
+            modifications++;
+        } else if (nodeToRemoved.lesser != null && nodeToRemoved.greater == null) {
+            // Using the less subtree
+            replacement = nodeToRemoved.lesser;
+        } else if (nodeToRemoved.greater != null && nodeToRemoved.lesser == null) {
+            // Using the greater subtree (there is no lesser subtree, no refactoring)
+            replacement = nodeToRemoved.greater;
+        }
 
+        return replacement;
     }
 
+    /**
+     * Replace nodeToRemoved with replacementNode in the tree.
+     * @param nodeToRemoved
+     *      Node<T> to remove replace in the tree. nodeToRemoved should NOT be NULL.
+     * @param replacementNode
+     *      Node<T> to replace nodeToRemoved in the tree. replacementNode can be NULL.
+     */
+    // 使用后者代替前者。
     private void replacementNodeWithNode(Node<T> nodeToRemoved, Node<T> replacementNode) {
+
+
+
+
+
     }
 
 
 
     @Override
     public void clear() {
-
+        root = null;
+        size = 0;
     }
 
     @Override
     public int size() {
-        return 0;
+        return size;
     }
 
     @Override
     public boolean validate() {
-        return false;
+        if (root == null)
+            return true;
+
+        return validateNode(root);
     }
+
+    /**
+     * Validate the node for all Binary Search Tree invariants.
+     *
+     * @param node
+     *            Node<T> to validate in the tree. node should NOT be NULL.
+     * @return True if the node is valid.
+     */
+    protected boolean validateNode(Node<T> node) {
+        Node<T> lesser = node.lesser;
+        Node<T> greater = node.greater;
+
+        boolean lesserCheck = true;
+        // 使用迭代检测它的左边。
+        if (lesser != null && lesser.id != null) {
+            // 前者小于后者返回小于0值。
+            lesserCheck = (lesser.id.compareTo(node.id) <= 0);
+            // 迭代
+            if (lesserCheck)
+                lesserCheck = validateNode(lesser);
+        }
+        if (!lesserCheck)
+            return false;
+
+        boolean greaterCheck = true;
+        if (greater != null && greater.id != null) {
+            greaterCheck = (greater.id.compareTo(node.id) > 0);
+            if (greaterCheck)
+                greaterCheck = validateNode(greater);
+        }
+
+        return greaterCheck;
+    }
+
+
+    /**
+     * Get an array representation of the tree in breath first search order.
+     *
+     * @return breath first search sorted array representing the tree.
+     */
+    public T[] getBFS() {
+        return getBFS(this.root, this.size);
+    }
+
+    /**
+     * Get an array representation of the tree in breath first search order.
+     *
+     * @param start rooted node
+     * @param size of tree rooted at start
+     *
+     * @return breath first search sorted array representing the tree.
+     */
+    public static <T extends Comparable<T>> T[] getBFS(Node<T> start, int size) {
+        final Queue<Node<T>> queue = new ArrayDeque<Node<T>>();
+        final T[] values = (T[]) Array.newInstance(start.id.getClass(), size);
+        int count = 0;
+
+        Node<T> node = start;
+
+        while (node != null) {
+            values[count++] = node.id;
+            if (node.lesser != null) {
+                queue.add(node.lesser);
+            }
+            if (node.greater != null) {
+                queue.add(node.greater);
+            }
+            if (!queue.isEmpty())
+                // 先入先出，一层层往下递进。
+                node = queue.remove();
+            else
+                node = null;
+        }
+
+        return values;
+    }
+
+    /**
+     * Get an array representation of the tree in level order.
+     *
+     * @return level order sorted array representing the tree.
+     */
+    public T[] getLevelOrder() {
+        return getBFS();
+    }
+
+
+    /**
+     * Get an array representation of the tree in-order.
+     *
+     * @param order of search
+     *
+     * @return order sorted array representing the tree.
+     */
+    public T[] getDFS(DepthFirstSearchOrder order) {
+        return getDFS(order, this.root, this.size);
+    }
+
+    /**
+     * Get an array representation of the tree in-order.
+     *
+     * @param order of search
+     * @param start rooted node
+     * @param size of tree rooted at start
+     *
+     * @return order sorted array representing the tree.
+     */
+    // 只是调换了add的顺序，其它都没有变化。
+    public static <T extends Comparable<T>> T[] getDFS(DepthFirstSearchOrder order,
+                                                       Node<T> start, int size) {
+        final Set<Node<T>> added = new HashSet<Node<T>>(2);
+
+        final T[] nodes = (T[])Array.newInstance(start.id.getClass(), size);
+
+        int index = 0;
+
+        Node<T> node = start;
+
+        while (index < size && node != null) {
+            Node<T> parent = node.parent;
+            Node<T> lesser = (node.lesser != null && !added.contains(node.lesser) ?
+                    node.lesser : null);
+            Node<T> greater = (node.greater != null && !added.contains(node.greater) ?
+                    node.greater : null);
+
+            if (parent == null && lesser == null && greater == null) {
+                if (!added.contains(node)) {
+                    nodes[index] = node.id;
+                }
+                break;
+            }
+
+            if (order == DepthFirstSearchOrder.inOrder) {
+                if (lesser != null) {
+                    node = lesser;
+                } else {
+                    if (!added.contains(node)) {
+                        nodes[index++] = node.id;
+                    }
+                    if (greater != null) {
+                        node = greater;
+                    } else if (added.contains(node)) {
+                        node = parent;
+                    } else {
+                        // We should not get here. Stop the loop!
+                        node = null;
+                    }
+                }
+            } else if (order == DepthFirstSearchOrder.preOrder) {
+                if (!added.contains(node)) {
+                    nodes[index++] = node.id;
+                    added.add(node);
+                }
+                if (lesser != null) {
+                    node = lesser;
+                } else if (greater != null) {
+                    node = greater;
+                } else if (added.contains(node)) {
+                    node = parent;
+                } else {
+                    // We should not get here. Stop the loop!
+                    node = null;
+                }
+            } else {
+                // post-oder
+                if (lesser != null) {
+                    node = lesser;
+                } else {
+                    if (greater != null) {
+                        node = greater;
+                    } else {
+                        // lesser = null && greater == null
+                        nodes[index++] = node.id;
+                        added.add(node);
+                        node = parent;
+                    }
+                }
+            }
+        }
+
+        return nodes;
+    }
+
+    /**
+     * Get an array representation of the tree in sorted order.
+     *
+     * @return sorted array representing the tree.
+     */
+    // 和我本上绘制的图形不谋而合，说明inOrder是排列好的。
+    public T[] getSorted() {
+        return getDFS(DepthFirstSearchOrder.inOrder);
+    }
+
 
     @Override
     public Collection<T> toCollection() {
-        return null;
+        return (new JavaCompatibleBinarySearchTree<T>(this));
+    }
+
+    private static class JavaCompatibleBinarySearchTree<T extends Comparable<T>> extends
+            java.util.AbstractCollection<T> {
+
+        protected BinarySearchTree<T> tree = null;
+
+        public JavaCompatibleBinarySearchTree(BinarySearchTree<T> tree) {
+            this.tree = tree;
+        }
+
+        @Override
+        public boolean add(T t) {
+            return tree.add(t);
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            return (tree.remove((T)o) != null);
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return (tree.remove((T)o) != null);
+        }
+
+
+
+        @Override
+        public java.util.Iterator<T> iterator() {
+            return new BinarySearchTreeIterator<T>(this.tree);
+        }
+
+        @Override
+        public int size() {
+            return tree.size;
+        }
+
+        private static class BinarySearchTreeIterator<C extends Comparable<T>> implements
+                java.util.Iterator<C> {
+
+
+
+            @Override
+            public boolean hasNext() {
+                return false;
+            }
+
+            @Override
+            public C next() {
+                return null;
+            }
+        }
     }
 
     protected static class Node<T extends Comparable<T>> {
