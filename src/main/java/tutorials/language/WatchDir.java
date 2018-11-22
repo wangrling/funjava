@@ -1,4 +1,4 @@
-package tutorials;
+package tutorials.language;
 
 import java.io.IOException;
 import java.nio.file.WatchEvent;
