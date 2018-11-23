@@ -476,6 +476,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
      *
      * @return breath first search sorted array representing the tree.
      */
+    // 從根到葉進行遍歷。
     public static <T extends Comparable<T>> T[] getBFS(Node<T> start, int size) {
         final Queue<Node<T>> queue = new ArrayDeque<Node<T>>();
         final T[] values = (T[])Array.newInstance(start.id.getClass(), size);

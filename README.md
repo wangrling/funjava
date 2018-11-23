@@ -69,29 +69,26 @@ ProducerConsumerTest    Safelock
 
 容器：FindDups Shuffle     Countdown   Name
 
+<hr>
 
-5. Date-Time APIs   => date
-6. Deployment
+5. Custom Networking => network
 
-GUI
-7. Creating a GUI with Swing
-8. Creating a JavaFX GUI
+網絡：ParseURL URLReader
 
-Advanced
-9. Custom Networking
-10. The Extension Mechanism
+<hr>
 
-附录：
-两个非常流行的库
-数据结构和算法：algorithms
+6. Reflection
+
+反射：ClassDeclarationSpy
+
+7. 数据结构和算法
 BinarySearchTree
 
-
-设计模式：patterns
+8. 设计模式
 abstractfactory
 builder
 callback
-dao
 modelviewpresenter
 observer
 state
+

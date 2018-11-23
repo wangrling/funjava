@@ -5,6 +5,7 @@ import java.util.Random;
 
 public class Utils {
 
+    // 把已知類型轉換爲泛型。
     public static final <T> T parseT(final Integer value, final Class<T> type) {
         T returnValue = null;
 
