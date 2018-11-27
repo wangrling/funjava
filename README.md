@@ -82,13 +82,31 @@ ProducerConsumerTest    Safelock
 反射：ClassDeclarationSpy
 
 7. 数据结构和算法
+
 BinarySearchTree
+節點左邊的子節點全部小於該節點，節點右邊的子節點全部大於該節點，對於所有節點都是如此。
+
+AVLTree 
+平衡樹，任何節點的左右子樹的高度差不超過１位。
+
+
 
 8. 设计模式
 abstractfactory
+構造不同的抽象對象，然後繼承對象
+
 builder
+對象有很多不同的屬性，可以通過內置的Builder來進行構建。
+
 callback
+該事件發生時，相應地執行其它事件。
+
 modelviewpresenter
+將數據顯示在不同的終端。
+
 observer
+當某個事件發生時，可以通知註冊進來的觀察者。
+
 state
+當狀態發生變化時，相關的行爲也會發生變化。
 

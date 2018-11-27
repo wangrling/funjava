@@ -188,6 +188,8 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
      * @param node
      *            Root of tree to rotate right.
      */
+    // 向右旋轉是把節點左子節點旋轉到節點的位置。
+    // 如果是平衡狀態就會打破原來的平衡。
     protected void rotateRight(Node<T> node) {
         Node<T> parent = node.parent;
         Node<T> lesser = node.lesser;
@@ -681,6 +683,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
             } else {
                 builder.append(prefix + (isTail ? "└── " : "├── ") + node.id + "\n");
             }
+            // 該節點包含的子節點數目。
             List<Node<T>> children = null;
             if (node.lesser != null || node.greater != null) {
                 children = new ArrayList<Node<T>>(2);
@@ -689,11 +692,14 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
                 if (node.greater != null)
                     children.add(node.greater);
             }
+
+            // 遍歷有點複雜。
             if (children != null) {
                 for (int i = 0; i < children.size() - 1; i++) {
                     builder.append(getString(children.get(i), prefix + (isTail ? "    " : "│   "), false));
                 }
                 if (children.size() >= 1) {
+                    // 只獲取最後的節點畫豎線。
                     builder.append(getString(children.get(children.size() - 1), prefix + (isTail ? "    " : "│   "), true));
                 }
             }
@@ -798,5 +804,25 @@ public class BinarySearchTree<T extends Comparable<T>> implements ITree<T> {
                 tree.removeNode(last);
             }
         }
+    }
+
+    public static final void main(String[] args) {
+        final BinarySearchTree<Integer> testBST = new BinarySearchTree<Integer>();
+            testBST.add(4);
+            testBST.add(2);
+            testBST.add(5);
+            testBST.add(1);
+            testBST.add(3);
+
+            System.out.println(testBST);
+
+        /**
+         * 輸出打印
+         * └── 4
+         *     ├── (left) 2
+         *     │   ├── (left) 1
+         *     │   └── (right) 3
+         *     └── (right) 5
+         */
     }
 }
