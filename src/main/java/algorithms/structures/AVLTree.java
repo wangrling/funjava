@@ -67,7 +67,7 @@ public class AVLTree<T extends Comparable<T>> extends BinarySearchTree<T> {
             nodeAdded = (AVLNode<T>) nodeAdded.parent;
         }
 
-        return nodeAdded = (AVLNode<T>) nodeAdded.parent;
+        return nodeToReturn;
     }
 
     /**
